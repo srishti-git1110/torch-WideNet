@@ -27,7 +27,7 @@ class ExpertAllocation(nn.Module):
         inp_dim: int,
         num_experts: int,
         buffer_C: float,
-        alpha: float = 0.01,
+        alpha: float,
     ):
         super(ExpertAllocation, self).__init__()
         self.buffer_C = buffer_C
@@ -64,6 +64,7 @@ class MOELayer(nn.Module):
         inp_dim: int,
         num_experts: int,
         buffer_C: float,
+        alpha: float,
     ):
         super(MOELayer, self).__init__()
         self.num_experts = num_experts
@@ -71,6 +72,7 @@ class MOELayer(nn.Module):
         self.experts = nn.ModuleList(
             [nn.Linear(inp_dim, inp_dim) for _ in range(num_experts)]
         )
+        self.expert_allocation = ExpertAllocation(inp_dim, num_experts, buffer_C, alpha)
 
     def forward(self, x):
         routed_experts, routed_probs, top_idx, aux_loss = self.expert_allocation(x)
@@ -105,6 +107,7 @@ class WideNet(nn.Module):
         num_heads: int,
         attn_dropout: float = 0.1,
         buffer_C: float = 1.2,
+        alpha: float = 0.01,
     ):
         super(WideNet, self).__init__()
         self.moe_norms = nn.ModuleList([])
@@ -119,7 +122,7 @@ class WideNet(nn.Module):
         self.attn_block = nn.MultiheadAttention(
             inp_dim, num_heads, attn_dropout, batch_first=True
         )
-        self.moe_layer = MOELayer(inp_dim, num_experts, buffer_C)
+        self.moe_layer = MOELayer(inp_dim, num_experts, buffer_C, alpha)
     
     def forward(self, x):
         x = self.embedding(x)
