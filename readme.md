@@ -1,4 +1,4 @@
-# WideNet: Go Wider Instead of Deeper]olll
+# WideNet: Go Wider Instead of Deeper
 PyTorch implementation of [WideNet: Go Wider Instead of Deeper](https://arxiv.org/abs/2105.04703). 
 
 ![WideNet](arch.png)
